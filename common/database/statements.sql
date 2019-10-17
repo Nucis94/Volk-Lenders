@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS volk_lenders;         # Main database
-CREATE DATABASE IF NOT EXISTS volk_lenders_test;    # Testing database
+CREATE DATABASE IF NOT EXISTS volk_lenders; # Main database
+CREATE DATABASE IF NOT EXISTS volk_lenders_test; # Testing database
 
 USE volk_lenders;
 
@@ -49,20 +49,20 @@ CREATE TABLE IF NOT EXISTS `volk_lenders_test`.`team`
 */
 CREATE TABLE IF NOT EXISTS `volk_lenders`.`team_footballer`
 (
-    `id`            INT(11)  NOT NULL AUTO_INCREMENT,
-    `team_id`       INT(11)  NOT NULL,
-    `footballer_id` INT(11)  NOT NULL,
-    `datetime`      DATETIME NOT NULL,
+    `id`            INT(11) NOT NULL AUTO_INCREMENT,
+    `team_id`       INT(11) NOT NULL,
+    `footballer_id` INT(11) NOT NULL,
+    `date`          INT(11) NOT NULL,
     PRIMARY KEY (`id`),
     FOREIGN KEY (`team_id`) REFERENCES team (`id`),
     FOREIGN KEY (`footballer_id`) REFERENCES footballer (`id`)
 );
 CREATE TABLE IF NOT EXISTS `volk_lenders_test`.`team_footballer`
 (
-    `id`            INT(11)  NOT NULL AUTO_INCREMENT,
-    `team_id`       INT(11)  NOT NULL,
-    `footballer_id` INT(11)  NOT NULL,
-    `datetime`      DATETIME NOT NULL,
+    `id`            INT(11) NOT NULL AUTO_INCREMENT,
+    `team_id`       INT(11) NOT NULL,
+    `footballer_id` INT(11) NOT NULL,
+    `date`          INT(11) NOT NULL,
     PRIMARY KEY (`id`),
     FOREIGN KEY (`team_id`) REFERENCES team (`id`),
     FOREIGN KEY (`footballer_id`) REFERENCES footballer (`id`)
@@ -74,20 +74,20 @@ CREATE TABLE IF NOT EXISTS `volk_lenders_test`.`team_footballer`
 */
 CREATE TABLE IF NOT EXISTS `volk_lenders`.`match`
 (
-    `id`              INT(11)  NOT NULL AUTO_INCREMENT,
-    `local_team_id`   INT(11)  NOT NULL,
-    `foreign_team_id` INT(11)  NOT NULL,
-    `datetime`        DATETIME NOT NULL,
+    `id`              INT(11) NOT NULL AUTO_INCREMENT,
+    `local_team_id`   INT(11) NOT NULL,
+    `foreign_team_id` INT(11) NOT NULL,
+    `date`            INT(11) NOT NULL,
     PRIMARY KEY (`id`),
     FOREIGN KEY (`local_team_id`) REFERENCES team (`id`),
     FOREIGN KEY (`foreign_team_id`) REFERENCES team (`id`)
 );
 CREATE TABLE IF NOT EXISTS `volk_lenders_test`.`match`
 (
-    `id`              INT(11)  NOT NULL AUTO_INCREMENT,
-    `local_team_id`   INT(11)  NOT NULL,
-    `foreign_team_id` INT(11)  NOT NULL,
-    `datetime`        DATETIME NOT NULL,
+    `id`              INT(11) NOT NULL AUTO_INCREMENT,
+    `local_team_id`   INT(11) NOT NULL,
+    `foreign_team_id` INT(11) NOT NULL,
+    `date`            INT(11) NOT NULL,
     PRIMARY KEY (`id`),
     FOREIGN KEY (`local_team_id`) REFERENCES team (`id`),
     FOREIGN KEY (`foreign_team_id`) REFERENCES team (`id`)
@@ -99,11 +99,11 @@ CREATE TABLE IF NOT EXISTS `volk_lenders_test`.`match`
 */
 CREATE TABLE IF NOT EXISTS `volk_lenders`.`goal`
 (
-    `id`            INT(11)  NOT NULL AUTO_INCREMENT,
-    `match_id`      INT(11)  NOT NULL,
-    `team_id`       INT(11)  NOT NULL,
-    `footballer_id` INT(11)  NOT NULL,
-    `datetime`      DATETIME NOT NULL,
+    `id`            INT(11) NOT NULL AUTO_INCREMENT,
+    `match_id`      INT(11) NOT NULL,
+    `team_id`       INT(11) NOT NULL,
+    `footballer_id` INT(11) NOT NULL,
+    `date`          INT(11) NOT NULL,
     PRIMARY KEY (`id`),
     FOREIGN KEY (`match_id`) REFERENCES `match` (`id`),
     FOREIGN KEY (`team_id`) REFERENCES team (`id`),
@@ -111,11 +111,11 @@ CREATE TABLE IF NOT EXISTS `volk_lenders`.`goal`
 );
 CREATE TABLE IF NOT EXISTS `volk_lenders_test`.`goal`
 (
-    `id`            INT(11)  NOT NULL AUTO_INCREMENT,
-    `match_id`      INT(11)  NOT NULL,
-    `team_id`       INT(11)  NOT NULL,
-    `footballer_id` INT(11)  NOT NULL,
-    `datetime`      DATETIME NOT NULL,
+    `id`            INT(11) NOT NULL AUTO_INCREMENT,
+    `match_id`      INT(11) NOT NULL,
+    `team_id`       INT(11) NOT NULL,
+    `footballer_id` INT(11) NOT NULL,
+    `date`          INT(11) NOT NULL,
     PRIMARY KEY (`id`),
     FOREIGN KEY (`match_id`) REFERENCES `match` (`id`),
     FOREIGN KEY (`team_id`) REFERENCES team (`id`),
