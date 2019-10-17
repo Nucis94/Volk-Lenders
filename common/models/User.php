@@ -1,7 +1,7 @@
 <?php
+
 namespace common\models;
 
-use frontend\models\Role;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\behaviors\TimestampBehavior;
@@ -25,6 +25,16 @@ use yii\web\IdentityInterface;
  */
 class User extends ActiveRecord implements IdentityInterface
 {
+    /**
+     * User roles
+     */
+    const ROLE_USER = 10;
+    const ROLE_ADMIN = 20;
+    const ROLE_FOOTBALLER = 30;
+
+    /**
+     * User statuses
+     */
     const STATUS_DELETED = 0;
     const STATUS_INACTIVE = 9;
     const STATUS_ACTIVE = 10;
@@ -56,8 +66,8 @@ class User extends ActiveRecord implements IdentityInterface
         return [
             ['status', 'default', 'value' => self::STATUS_INACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_INACTIVE, self::STATUS_DELETED]],
-            ['role', 'default', 'value' => Role::findOne(['title', 'LIKE', 'USER'])->id],
-            ['role', 'in', 'range' => [Role::find()->min('id')->id, Role::find()->max('id')->id]],
+            ['role', 'default', 'value' => self::ROLE_USER],
+            ['role', 'in', 'range' => [self::ROLE_USER, self::ROLE_ADMIN, self::ROLE_FOOTBALLER]],
         ];
     }
 
@@ -112,7 +122,8 @@ class User extends ActiveRecord implements IdentityInterface
      * @param string $token verify email token
      * @return static|null
      */
-    public static function findByVerificationToken($token) {
+    public static function findByVerificationToken($token)
+    {
         return static::findOne([
             'verification_token' => $token,
             'status' => self::STATUS_INACTIVE
@@ -131,7 +142,7 @@ class User extends ActiveRecord implements IdentityInterface
             return false;
         }
 
-        $timestamp = (int) substr($token, strrpos($token, '_') + 1);
+        $timestamp = (int)substr($token, strrpos($token, '_') + 1);
         $expire = Yii::$app->params['user.passwordResetTokenExpire'];
         return $timestamp + $expire >= time();
     }
@@ -211,6 +222,22 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * Checks whether a user has a role or not.
+     *
+     * @param string $username
+     * @param int $role
+     * @return bool
+     */
+    public static function userHasRole($username, $role)
+    {
+        if (static::findOne(['username' => $username, 'role' => $role])) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Checks whether a user has ADMIN role or not.
      *
      * @param string $username
@@ -218,10 +245,6 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function isUserAdmin($username)
     {
-        if (static::findOne(['username' => $username, 'role' => Role::findOne(['title', 'LIKE', 'ADMIN'])->id])) {
-            return true;
-        } else {
-            return false;
-        }
+        return self::userHasRole($username, self::ROLE_ADMIN);
     }
 }

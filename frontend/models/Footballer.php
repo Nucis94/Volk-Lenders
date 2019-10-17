@@ -3,6 +3,7 @@
 namespace frontend\models;
 
 use common\models\User;
+use yii\web\IdentityInterface;
 
 /**
  * This is the model class for table "user".
@@ -21,25 +22,27 @@ use common\models\User;
  *
  * @property Goal[] $goals
  * @property TeamFootballer[] $teamFootballers
- * @property Role $role0
  */
-class Footballer extends User
+class Footballer extends User implements IdentityInterface
 {
-
     /**
      * {@inheritdoc}
      */
     public function rules()
     {
         return [
-            [['username', 'auth_key', 'password_hash', 'email', 'created_at', 'updated_at'], 'required'],
-            [['role', 'status', 'created_at', 'updated_at'], 'integer'],
-            [['username', 'password_hash', 'password_reset_token', 'email', 'verification_token'], 'string', 'max' => 255],
-            [['auth_key'], 'string', 'max' => 32],
-            [['username'], 'unique'],
-            [['email'], 'unique'],
-            [['password_reset_token'], 'unique'],
-            [['role'], 'exist', 'skipOnError' => true, 'targetClass' => Role::className(), 'targetAttribute' => ['role' => 'id']],
+            ['username', 'required'],
+            ['username', 'unique'],
+            ['password', 'required'],
+            ['email', 'email'],
+            ['email', 'required'],
+            ['email', 'unique'],
+
+            ['auth_key', 'default', 'value' => self::generateAuthKey()],
+            ['status', 'default', 'value' => self::STATUS_INACTIVE],
+            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_INACTIVE, self::STATUS_DELETED]],
+            ['role', 'default', 'value' => self::ROLE_FOOTBALLER],
+            ['role', 'in', 'range' => [self::ROLE_FOOTBALLER]],
         ];
     }
 
@@ -51,19 +54,75 @@ class Footballer extends User
         return [
             'id' => 'ID',
             'username' => 'Username',
-            'auth_key' => 'Auth Key',
-            'password_hash' => 'Password Hash',
-            'password_reset_token' => 'Password Reset Token',
             'email' => 'Email',
-            'role' => 'Role',
             'status' => 'Status',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
-            'verification_token' => 'Verification Token',
         ];
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public static function findIdentity($id)
+    {
+        return static::findOne(['id' => $id, 'role' => self::ROLE_FOOTBALLER, 'status' => self::STATUS_ACTIVE]);
+    }
+
+    /**
+     * Finds user by username
+     *
+     * @param string $username
+     * @return static|null
+     */
+    public static function findByUsername($username)
+    {
+        return static::findOne(['username' => $username, 'role' => self::ROLE_FOOTBALLER, 'status' => self::STATUS_ACTIVE]);
+    }
+
+    /**
+     * Finds user by password reset token
+     *
+     * @param string $token password reset token
+     * @return static|null
+     */
+    public static function findByPasswordResetToken($token)
+    {
+        if (!static::isPasswordResetTokenValid($token)) {
+            return null;
+        }
+
+        return static::findOne([
+            'password_reset_token' => $token,
+            'role' => self::ROLE_FOOTBALLER,
+            'status' => self::STATUS_ACTIVE,
+        ]);
+    }
+
+    /**
+     * Finds user by verification email token
+     *
+     * @param string $token verify email token
+     * @return static|null
+     */
+    public static function findByVerificationToken($token)
+    {
+        return static::findOne([
+            'verification_token' => $token,
+            'role' => self::ROLE_FOOTBALLER,
+            'status' => self::STATUS_INACTIVE
+        ]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPassword()
+    {
+        return $this->password_hash;
+    }
+
+    /**
+     * Query builder. Returns footballer's goals.
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getGoals()
@@ -72,18 +131,12 @@ class Footballer extends User
     }
 
     /**
+     * Query builder. Returns footballer's teams.
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getTeamFootballers()
     {
         return $this->hasMany(TeamFootballer::className(), ['footballer_id' => 'id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getRole()
-    {
-        return $this->hasOne(Role::className(), ['id' => 'role']);
     }
 }
