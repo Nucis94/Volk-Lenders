@@ -1,6 +1,7 @@
 <?php
 namespace common\models;
 
+use frontend\models\Role;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\behaviors\TimestampBehavior;
@@ -55,6 +56,8 @@ class User extends ActiveRecord implements IdentityInterface
         return [
             ['status', 'default', 'value' => self::STATUS_INACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_INACTIVE, self::STATUS_DELETED]],
+            ['role', 'default', 'value' => Role::findOne(['title', 'LIKE', 'USER'])->id],
+            ['role', 'in', 'range' => [Role::find()->min('id')->id, Role::find()->max('id')->id]],
         ];
     }
 
@@ -205,5 +208,20 @@ class User extends ActiveRecord implements IdentityInterface
     public function removePasswordResetToken()
     {
         $this->password_reset_token = null;
+    }
+
+    /**
+     * Checks whether a user has ADMIN role or not.
+     *
+     * @param string $username
+     * @return bool
+     */
+    public static function isUserAdmin($username)
+    {
+        if (static::findOne(['username' => $username, 'role' => Role::findOne(['title', 'LIKE', 'ADMIN'])->id])) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
